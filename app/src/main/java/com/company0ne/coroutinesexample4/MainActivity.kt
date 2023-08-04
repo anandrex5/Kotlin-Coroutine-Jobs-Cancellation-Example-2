@@ -3,10 +3,7 @@ package com.company0ne.coroutinesexample4
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,17 +26,18 @@ class MainActivity : AppCompatActivity() {
             //we can also run in another thread like launch(Dispatchers.IO)
             val childJob = launch{
 //                Log.d("TAG", "Child - $coroutineContext")
-                Log.d("TAG","Child Job Started")
-                delay(5000)
-                Log.d("TAG","Child Job Ended")
+                try {
+                    Log.d("TAG","Child Job Started")
+                    delay(5000)
+                    Log.d("TAG","Child Job Ended")
+                } catch (e: CancellationException) {
+                    Log.d("TAG","Child Job Cancelled")
+                }
             }
             delay(3000)
+            childJob.cancel()
             Log.d("TAG","Parent Ended")
         }
-        //for cancellation if we uncomment it - if the delay is more than 1s then the parentJob will be suspended
-//        delay(1000)
-//        parentJob.cancel()
-
         parentJob.join()
         Log.d("TAG", "Parent Completed")
     }
