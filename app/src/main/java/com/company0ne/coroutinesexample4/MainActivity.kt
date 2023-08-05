@@ -7,38 +7,31 @@ import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        GlobalScope.launch { execute() }
+        CoroutineScope(Dispatchers.IO).launch { execute() }
     }
 
     private suspend fun execute() {
-        val parentJob = GlobalScope.launch(Dispatchers.Main) {
-//            Log.d("TAG", "Parent - $coroutineContext")
-
-            Log.d("TAG","Parent Started")
-
-
-
-            //its automatic inherit the parent context
-            //we can also run in another thread like launch(Dispatchers.IO)
-            val childJob = launch{
-//                Log.d("TAG", "Child - $coroutineContext")
-                try {
-                    Log.d("TAG","Child Job Started")
-                    delay(5000)
-                    Log.d("TAG","Child Job Ended")
-                } catch (e: CancellationException) {
-                    Log.d("TAG","Child Job Cancelled")
+        val parentJob = CoroutineScope(Dispatchers.IO).launch {
+            for (i in 1..1000) {
+                if (isActive) {
+                    executeLoongRunningTask()
+                    Log.d("TAG", i.toString())
                 }
             }
-            delay(3000)
-            childJob.cancel()
-            Log.d("TAG","Parent Ended")
         }
+        delay(100)
+        Log.d("TAG", "Canceling Job")
+        parentJob.cancel()
         parentJob.join()
         Log.d("TAG", "Parent Completed")
     }
+
+    private fun executeLoongRunningTask() {
+        for (i in 1..1000000) {
+        }
+    }
 }
+
